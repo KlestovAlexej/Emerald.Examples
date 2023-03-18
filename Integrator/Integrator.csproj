@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<AssemblyName>ShtrihM.Emerald.Examples.Integrator</AssemblyName>
+		<RootNamespace>ShtrihM.Emerald.Examples.Integrator</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+		<PackageReference Include="ShtrihM.Emerald.Integrator.Api.Clients" Version="1.0.0.1693" />
+		<PackageReference Include="ShtrihM.Wattle3.Testing" Version="3.0.0.37074" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="emerald.examples.integrator.https.organization.cer">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="emerald.examples.integrator.https.organization.pfx">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="emerald.examples.integrator.signature.organization.cer">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="emerald.examples.integrator.signature.organization.pfx">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>
