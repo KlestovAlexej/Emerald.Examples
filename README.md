@@ -10,7 +10,7 @@
 ---
 ## Примеры использования API интеграции внешних организаций
 
-Пакеты **nuget** начинаются с префикса [ShtrihM.Emerald.Integrator.Api.Clients](https://www.nuget.org/packages?q=ShtrihM.Emerald.Integrator.Api.Clients)
+Пакеты **nuget** клиента начинаются с префикса [ShtrihM.Emerald.Integrator.Api.Clients](https://www.nuget.org/packages?q=ShtrihM.Emerald.Integrator.Api.Clients)
 
 Примеры в файле [Examples.cs](/Integrator/Examples.cs).
 
