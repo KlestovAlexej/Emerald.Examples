@@ -14,6 +14,7 @@ using System.Text;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
+using System.Security.Cryptography;
 
 namespace ShtrihM.Emerald.Examples.Integrator;
 
@@ -38,13 +39,22 @@ public class Examples
     /// </summary>
     private X509Certificate2 m_certificateSignature;
 
+    /// <summary>
+    /// Публичный корневой сертификат сервера для HTTPS.
+    /// </summary>
+    private X509Certificate2 m_rootServerCertificateHttps;
+
     [SetUp]
     public void SetUp()
     {
         var certificateHttpsBytes = File.ReadAllBytes(@"emerald.examples.integrator.https.organization.pfx");
         m_certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
+    
         var certificateSignatureBytes = File.ReadAllBytes(@"emerald.examples.integrator.signature.organization.pfx");
         m_certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
+
+        var rootServerCertificateHttpsBytes = File.ReadAllBytes(@"root.emerald.integrator.server.cer");
+        m_rootServerCertificateHttps = new X509Certificate2(rootServerCertificateHttpsBytes);
     }
 
     /// <summary>
@@ -57,7 +67,19 @@ public class Examples
         var handler =
             new HttpClientHandler
             {
-                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
+                ServerCertificateCustomValidationCallback =
+                    (_, _, chain, _) =>
+                    {
+                        foreach (var element in chain.ChainElements)
+                        {
+                            if (element.Certificate.Thumbprint == m_certificateSignature.Thumbprint)
+                            {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    },
             };
 
         handler.ClientCertificates.Add(m_certificateHttps);
