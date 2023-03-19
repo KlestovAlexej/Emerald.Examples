@@ -12,6 +12,7 @@ using ShtrihM.Wattle3.Testing;
 using ShtrihM.Wattle3.Json.Extensions;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
+using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
 
 namespace ShtrihM.Emerald.Examples.Integrator;
 
@@ -176,5 +177,25 @@ public class Examples
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
+    }
+
+    /// <summary>
+    /// Проверить существование PAN банковской карты.
+    /// </summary>
+    [Test]
+    public async Task Example_TokenBankCardExistsAsync()
+    {
+        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
+        var certificate = new X509Certificate2(certificateBytes, "password");
+
+        var client = new Client(BaseAddress, certificate);
+        var existsResult =
+            await client.TokenBankCardExistsAsync(
+                new BankCardPanInfo
+                {
+                    PanHash = new byte[FieldsConstants.Sha256Length],
+                });
+        Assert.IsNotNull(existsResult);
+        Console.WriteLine(existsResult.ToJsonText(true));
     }
 }
