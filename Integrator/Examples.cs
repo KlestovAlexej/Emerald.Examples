@@ -14,7 +14,6 @@ using System.Text;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
-using System.Security.Cryptography;
 
 namespace ShtrihM.Emerald.Examples.Integrator;
 
@@ -72,7 +71,7 @@ public class Examples
                     {
                         foreach (var element in chain.ChainElements)
                         {
-                            if (element.Certificate.Thumbprint == m_certificateSignature.Thumbprint)
+                            if (element.Certificate.Thumbprint == m_rootServerCertificateHttps.Thumbprint)
                             {
                                 return true;
                             }
@@ -110,7 +109,7 @@ public class Examples
     [Test]
     public async Task Example_HttpClient_Auto()
     {
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -123,7 +122,7 @@ public class Examples
     [Test]
     public async Task Example_GetDescriptionAsync()
     {
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -147,7 +146,7 @@ public class Examples
                 Type = 1,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -172,7 +171,7 @@ public class Examples
                 Count = 12,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -213,7 +212,7 @@ public class Examples
                 Message = message,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var documentResult = await client.AddDocumentAsync(documentMessage);
 
         Assert.IsNotNull(documentResult);
@@ -238,7 +237,7 @@ public class Examples
                 Type = 1,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -251,7 +250,7 @@ public class Examples
     [Test]
     public async Task Example_TokenBankCardExistsAsync()
     {
-        using var client = new Client(BaseAddress, m_certificateHttps);
+        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
         var existsResult =
             await client.TokenBankCardExistsAsync(
                 new BankCardPanInfo
