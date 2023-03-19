@@ -29,6 +29,25 @@ public class Examples
     private static readonly string BaseAddress = $"https://localhost:{Common.Constants.DefaultPortHttpsApiIntegrator}";
 
     /// <summary>
+    /// Приватный сертификат клиента для HTTPS.
+    /// </summary>
+    private X509Certificate2 m_certificateHttps;
+
+    /// <summary>
+    /// Приватный сертификат клиента для создания электронной подписи.
+    /// </summary>
+    private X509Certificate2 m_certificateSignature;
+
+    [SetUp]
+    public void SetUp()
+    {
+        var certificateHttpsBytes = File.ReadAllBytes(@"emerald.examples.integrator.https.organization.pfx");
+        m_certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
+        var certificateSignatureBytes = File.ReadAllBytes(@"emerald.examples.integrator.signature.organization.pfx");
+        m_certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
+    }
+
+    /// <summary>
     /// <see cref="HttpClient"/> создаётся вручную.
     /// Получить описание сервера.
     /// </summary>
@@ -41,9 +60,7 @@ public class Examples
                 ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
             };
 
-        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificate = new X509Certificate2(certificateBytes, "password");
-        handler.ClientCertificates.Add(certificate!);
+        handler.ClientCertificates.Add(m_certificateHttps);
 
         var httpClient =
             new HttpClient(handler)
@@ -71,10 +88,7 @@ public class Examples
     [Test]
     public async Task Example_HttpClient_Auto()
     {
-        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificate = new X509Certificate2(certificateBytes, "password");
-
-        using var client = new Client(BaseAddress, certificate);
+        using var client = new Client(BaseAddress, m_certificateHttps);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -87,10 +101,7 @@ public class Examples
     [Test]
     public async Task Example_GetDescriptionAsync()
     {
-        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificate = new X509Certificate2(certificateBytes, "password");
-
-        using var client = new Client(BaseAddress, certificate);
+        using var client = new Client(BaseAddress, m_certificateHttps);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -103,12 +114,6 @@ public class Examples
     [Test]
     public async Task Example_AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimited()
     {
-        var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        using var client = new Client(BaseAddress, certificateHttps);
-        var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
-        var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
-
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimited
             {
@@ -119,7 +124,9 @@ public class Examples
                 PanHash = ProviderRandomValues.GetBytes(FieldsConstants.Sha256Length),
                 Type = 1,
             };
-        var documentResult = await client.AddDocumentAsync(document, certificateSignature);
+
+        using var client = new Client(BaseAddress, m_certificateHttps);
+        var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
@@ -131,12 +138,6 @@ public class Examples
     [Test]
     public async Task Example_AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited()
     {
-        var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        using var client = new Client(BaseAddress, certificateHttps);
-        var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
-        var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
-
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited
             {
@@ -148,7 +149,9 @@ public class Examples
                 Type = 1,
                 Count = 12,
             };
-        var documentResult = await client.AddDocumentAsync(document, certificateSignature);
+
+        using var client = new Client(BaseAddress, m_certificateHttps);
+        var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
@@ -161,12 +164,6 @@ public class Examples
     [Test]
     public async Task Example_AddDocumentAsync_Mnual_Signature()
     {
-        var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        using var client = new Client(BaseAddress, certificateHttps);
-        var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
-        var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
-
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimited
             {
@@ -182,7 +179,7 @@ public class Examples
         var contentInfo = new ContentInfo(documentBytes);
         var signedCms = new SignedCms(contentInfo, false);
         var signer =
-            new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, certificateSignature)
+            new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, m_certificateSignature)
             {
                 IncludeOption = X509IncludeOption.EndCertOnly
             };
@@ -193,6 +190,8 @@ public class Examples
             {
                 Message = message,
             };
+
+        using var client = new Client(BaseAddress, m_certificateHttps);
         var documentResult = await client.AddDocumentAsync(documentMessage);
 
         Assert.IsNotNull(documentResult);
@@ -206,12 +205,6 @@ public class Examples
     [Test]
     public async Task Example_AddDocumentAsync_Auto_Signature()
     {
-        var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        using var client = new Client(BaseAddress, certificateHttps);
-        var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
-        var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
-
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimited
             {
@@ -222,7 +215,9 @@ public class Examples
                 PanHash = ProviderRandomValues.GetBytes(FieldsConstants.Sha256Length),
                 Type = 1,
             };
-        var documentResult = await client.AddDocumentAsync(document, certificateSignature);
+
+        using var client = new Client(BaseAddress, m_certificateHttps);
+        var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
@@ -234,16 +229,14 @@ public class Examples
     [Test]
     public async Task Example_TokenBankCardExistsAsync()
     {
-        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificate = new X509Certificate2(certificateBytes, "password");
-
-        using var client = new Client(BaseAddress, certificate);
+        using var client = new Client(BaseAddress, m_certificateHttps);
         var existsResult =
             await client.TokenBankCardExistsAsync(
                 new BankCardPanInfo
                 {
                     PanHash = new byte[FieldsConstants.Sha256Length],
                 });
+
         Assert.IsNotNull(existsResult);
         Console.WriteLine(existsResult.ToJsonText(true));
     }
