@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -12,6 +11,8 @@ using ShtrihM.Wattle3.Testing;
 using ShtrihM.Wattle3.Json.Extensions;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
+using RestSharp;
+using RestSharp.Serializers.NewtonsoftJson;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
 
 namespace ShtrihM.Emerald.Examples.Integrator;
@@ -26,23 +27,6 @@ public class Examples
     /// Базовый URL API облачного транспорта.
     /// </summary>
     private static readonly string BaseAddress = $"https://localhost:{Common.Constants.DefaultPortHttpsApiIntegrator}";
-
-    /// <summary>
-    /// Получить описание сервера.
-    /// <see cref="HttpClient"/> создаётся автоматически.
-    /// </summary>
-    [Test]
-    public async Task Example_GetDescriptionAsync_Auto_HttpClient()
-    {
-        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
-        var certificate = new X509Certificate2(certificateBytes, "password");
-
-        var client = new Client(BaseAddress, certificate);
-        var description = await client.GetDescriptionAsync();
-
-        Assert.IsNotNull(description);
-        Console.WriteLine(description.ToJsonText(true));
-    }
 
     /// <summary>
     /// Получить описание сервера.
@@ -67,7 +51,30 @@ public class Examples
                 BaseAddress = new Uri(BaseAddress),
             };
 
-        var client = new Client(httpClient);
+        var restClient =
+            new RestClient(
+                httpClient,
+                disposeHttpClient: true,
+                configureSerialization: s => s.UseNewtonsoftJson(JsonExtensions.CreateSettings()));
+
+        using var client = new Client(restClient, true);
+        var description = await client.GetDescriptionAsync();
+
+        Assert.IsNotNull(description);
+        Console.WriteLine(description.ToJsonText(true));
+    }
+
+    /// <summary>
+    /// Получить описание сервера.
+    /// <see cref="HttpClient"/> создаётся автоматически.
+    /// </summary>
+    [Test]
+    public async Task Example_GetDescriptionAsync_Auto_HttpClient()
+    {
+        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
+        var certificate = new X509Certificate2(certificateBytes, "password");
+
+        using var client = new Client(BaseAddress, certificate);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -83,7 +90,7 @@ public class Examples
     {
         var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        var client = new Client(BaseAddress, certificateHttps);
+        using var client = new Client(BaseAddress, certificateHttps);
         var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
         var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
 
@@ -112,7 +119,7 @@ public class Examples
     {
         var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        var client = new Client(BaseAddress, certificateHttps);
+        using var client = new Client(BaseAddress, certificateHttps);
         var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
         var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
 
@@ -142,7 +149,7 @@ public class Examples
     {
         var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-        var client = new Client(BaseAddress, certificateHttps);
+        using var client = new Client(BaseAddress, certificateHttps);
         var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
         var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
 
@@ -187,7 +194,7 @@ public class Examples
         var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificate = new X509Certificate2(certificateBytes, "password");
 
-        var client = new Client(BaseAddress, certificate);
+        using var client = new Client(BaseAddress, certificate);
         var existsResult =
             await client.TokenBankCardExistsAsync(
                 new BankCardPanInfo
