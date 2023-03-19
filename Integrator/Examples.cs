@@ -29,11 +29,11 @@ public class Examples
     private static readonly string BaseAddress = $"https://localhost:{Common.Constants.DefaultPortHttpsApiIntegrator}";
 
     /// <summary>
-    /// Получить описание сервера.
     /// <see cref="HttpClient"/> создаётся вручную.
+    /// Получить описание сервера.
     /// </summary>
     [Test]
-    public async Task Example_GetDescriptionAsync_Manual_HttpClient()
+    public async Task Example_HttpClient_Manual()
     {
         var handler =
             new HttpClientHandler
@@ -65,11 +65,27 @@ public class Examples
     }
 
     /// <summary>
-    /// Получить описание сервера.
     /// <see cref="HttpClient"/> создаётся автоматически.
+    /// Получить описание сервера.
     /// </summary>
     [Test]
-    public async Task Example_GetDescriptionAsync_Auto_HttpClient()
+    public async Task Example_HttpClient_Auto()
+    {
+        var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
+        var certificate = new X509Certificate2(certificateBytes, "password");
+
+        using var client = new Client(BaseAddress, certificate);
+        var description = await client.GetDescriptionAsync();
+
+        Assert.IsNotNull(description);
+        Console.WriteLine(description.ToJsonText(true));
+    }
+
+    /// <summary>
+    /// Получить описание сервера.
+    /// </summary>
+    [Test]
+    public async Task Example_GetDescriptionAsync()
     {
         var certificateBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificate = new X509Certificate2(certificateBytes, "password");
@@ -83,10 +99,9 @@ public class Examples
 
     /// <summary>
     /// Отправить документ организаци - создание услуги токена (банковская карта) - билет с ограниченным сроком действия.
-    /// Электронная подпись создаётся автоматически.
     /// </summary>
     [Test]
-    public async Task Example_AddDocumentAsync_Auto_Signature_DocumentTokenBankCardCreateTicketTimeLimited()
+    public async Task Example_AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimited()
     {
         var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
@@ -112,10 +127,9 @@ public class Examples
 
     /// <summary>
     /// Отправить документ организаци - создание услуги токена (банковская карта) - билет с ограниченным сроком действия и ограниченным числом поездок.
-    /// Электронная подпись создаётся автоматически.
     /// </summary>
     [Test]
-    public async Task Example_AddDocumentAsync_Auto_Signature_DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited()
+    public async Task Example_AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited()
     {
         var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
         var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
@@ -180,6 +194,35 @@ public class Examples
                 Message = message,
             };
         var documentResult = await client.AddDocumentAsync(documentMessage);
+
+        Assert.IsNotNull(documentResult);
+        Console.WriteLine(documentResult.ToJsonText(true));
+    }
+
+    /// <summary>
+    /// Отправить документ организаци.
+    /// Электронная подпись создаётся автоматически.
+    /// </summary>
+    [Test]
+    public async Task Example_AddDocumentAsync_Auto_Signature()
+    {
+        var certificateHttpsBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.https.organization.pfx");
+        var certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
+        using var client = new Client(BaseAddress, certificateHttps);
+        var certificateSignatureBytes = await File.ReadAllBytesAsync(@"emerald.examples.integrator.signature.organization.pfx");
+        var certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
+
+        var document =
+            new DocumentTokenBankCardCreateTicketTimeLimited
+            {
+                CreateDate = DateTimeOffset.Now,
+                DateBegin = DateTime.Now.Date,
+                DateEnd = DateTime.Now.Date.AddDays(30),
+                Key = Guid.NewGuid(),
+                PanHash = ProviderRandomValues.GetBytes(FieldsConstants.Sha256Length),
+                Type = 1,
+            };
+        var documentResult = await client.AddDocumentAsync(document, certificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
