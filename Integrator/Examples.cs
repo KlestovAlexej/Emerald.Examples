@@ -19,7 +19,6 @@ namespace ShtrihM.Emerald.Examples.Integrator;
 /// Примеры использования API интеграции внешних организаций.
 /// </summary>
 [TestFixture]
-[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 public class Examples
 {
     /// <summary>
