@@ -13,7 +13,9 @@ using System.Security.Cryptography.Pkcs;
 using System.Text;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
+using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Documents.DocumentEvents;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
+using NUnit.Framework.Internal.Execution;
 
 namespace ShtrihM.Emerald.Examples.Integrator;
 
@@ -151,6 +153,15 @@ public class Examples
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
+
+        Assert.IsFalse(documentResult.Successful);
+        Assert.IsNotNull(documentResult.Id);
+        Assert.IsNotNull(documentResult.Events);
+        Assert.AreEqual(1, documentResult.Events.Count);
+
+        var @event = documentResult.Events[0] as DocumentEventTokenNotFound;
+        Assert.IsNotNull(@event);
+        Assert.AreEqual("По PAN банковской карты не найден токен", @event.Reason);
     }
 
     /// <summary>
@@ -176,6 +187,15 @@ public class Examples
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
+
+        Assert.IsFalse(documentResult.Successful);
+        Assert.IsNotNull(documentResult.Id);
+        Assert.IsNotNull(documentResult.Events);
+        Assert.AreEqual(1, documentResult.Events.Count);
+
+        var @event = documentResult.Events[0] as DocumentEventTokenNotFound;
+        Assert.IsNotNull(@event);
+        Assert.AreEqual("По PAN банковской карты не найден токен", @event.Reason);
     }
 
     /// <summary>
@@ -202,7 +222,7 @@ public class Examples
         var signer =
             new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, m_certificateSignature)
             {
-                IncludeOption = X509IncludeOption.EndCertOnly
+                IncludeOption = X509IncludeOption.WholeChain 
             };
         signedCms.ComputeSignature(signer);
         var message = signedCms.Encode();
@@ -217,6 +237,15 @@ public class Examples
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
+
+        Assert.IsFalse(documentResult.Successful);
+        Assert.IsNotNull(documentResult.Id);
+        Assert.IsNotNull(documentResult.Events);
+        Assert.AreEqual(1, documentResult.Events.Count);
+
+        var @event = documentResult.Events[0] as DocumentEventTokenNotFound;
+        Assert.IsNotNull(@event);
+        Assert.AreEqual("По PAN банковской карты не найден токен", @event.Reason);
     }
 
     /// <summary>
@@ -242,6 +271,15 @@ public class Examples
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
+
+        Assert.IsFalse(documentResult.Successful);
+        Assert.IsNotNull(documentResult.Id);
+        Assert.IsNotNull(documentResult.Events);
+        Assert.AreEqual(1, documentResult.Events.Count);
+
+        var @event = documentResult.Events[0] as DocumentEventTokenNotFound;
+        Assert.IsNotNull(@event);
+        Assert.AreEqual("По PAN банковской карты не найден токен", @event.Reason);
     }
 
     /// <summary>
@@ -260,5 +298,8 @@ public class Examples
 
         Assert.IsNotNull(existsResult);
         Console.WriteLine(existsResult.ToJsonText(true));
+
+        Assert.IsFalse(existsResult.IsExists);
+        Assert.AreEqual("По PAN банковской карты не найден токен", existsResult.Reason);
     }
 }
