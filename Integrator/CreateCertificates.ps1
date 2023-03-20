@@ -10,7 +10,7 @@ $certServerRoot | Export-Certificate -Type cer -FilePath "C:\Dev\Emerald.Example
 
 # Сертфикат HTTPS клиента, подписанный корневым сертфикатом HTTPS клиента.
 #
-# Всегда RSA с длинной ключа не менее 2048 бит и алгоритмом хэш-функции SHA-256.
+# Сервер требует - RSA с длинной ключа не менее 2048 бит и алгоритмом хэш-функции SHA-256.
 #
 
 $certServer = New-SelfSignedCertificate -Type Custom -KeySpec Signature -Subject "CN=EmeraldExamplesIntegratorHttpsOrganization" -KeyExportPolicy Exportable -HashAlgorithm sha256 -KeyLength 2048 -CertStoreLocation "Cert:\CurrentUser\My" -KeyUsageProperty Sign -KeyUsage DigitalSignature, KeyEncipherment, DataEncipherment -Signer $certServerRoot -NotAfter (Get-Date).AddYears(20)
@@ -25,7 +25,7 @@ $certServerRoot | Export-Certificate -Type cer -FilePath "C:\Dev\Emerald.Example
 
 # Сертфикат электронной подписи клиента, подписанный корневым сертфикатом электронной подписи клиента.
 #
-# Всегда RSA с длинной ключа не менее 2048 бит и алгоритмом хэш-функции SHA-256.
+# Сервер требует - RSA с длинной ключа не менее 2048 бит и алгоритмом хэш-функции SHA-256.
 #
 
 $certServer = New-SelfSignedCertificate -Type Custom -KeySpec Signature -Subject "CN=EmeraldExamplesIntegratorSignatureOrganization" -KeyExportPolicy Exportable -HashAlgorithm sha256 -KeyLength 2048 -CertStoreLocation "Cert:\CurrentUser\My" -KeyUsageProperty Sign -KeyUsage DigitalSignature -Signer $certServerRoot -NotAfter (Get-Date).AddYears(20)
