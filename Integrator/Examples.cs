@@ -15,7 +15,6 @@ using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Documents.DocumentEvents;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
-using NUnit.Framework.Internal.Execution;
 
 namespace ShtrihM.Emerald.Examples.Integrator;
 
