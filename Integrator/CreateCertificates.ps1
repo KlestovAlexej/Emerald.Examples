@@ -18,6 +18,8 @@ $certServer = New-SelfSignedCertificate -Type Custom -KeySpec Signature -Subject
 $certServer | Export-PfxCertificate -FilePath "$path\emerald.examples.integrator.https.organization.pfx" -Password $password
 $certServer | Export-Certificate -Type cer -FilePath "$path\emerald.examples.integrator.https.organization.cer" -Force 
 
+# Удаление сертифкатов из хранилища
+
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServer.Thumbprint} | Remove-Item 
 Get-ChildItem Cert:\CurrentUser\CA | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
@@ -37,6 +39,8 @@ $certServerRoot | Export-Certificate -Type cer -FilePath "$path\root.emerald.exa
 $certServer = New-SelfSignedCertificate -Type Custom -KeySpec Signature -Subject "CN=EmeraldExamplesIntegratorSignatureOrganization" -KeyExportPolicy Exportable -HashAlgorithm sha256 -KeyLength 2048 -CertStoreLocation "Cert:\CurrentUser\My" -KeyUsageProperty Sign -KeyUsage DigitalSignature -Signer $certServerRoot -NotAfter (Get-Date).AddYears(20)
 $certServer | Export-PfxCertificate -FilePath "$path\emerald.examples.integrator.signature.organization.pfx" -Password $password
 $certServer | Export-Certificate -Type cer -FilePath "$path\emerald.examples.integrator.signature.organization.cer" -Force 
+
+# Удаление сертифкатов из хранилища
 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServer.Thumbprint} | Remove-Item 
