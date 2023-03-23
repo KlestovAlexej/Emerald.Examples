@@ -20,6 +20,8 @@ $certServer | Export-Certificate -Type cer -FilePath "$path\emerald.examples.int
 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServer.Thumbprint} | Remove-Item 
+Get-ChildItem Cert:\CurrentUser\CA | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
+Get-ChildItem Cert:\CurrentUser\CA | Where-Object {$_.Thumbprint -match $certServer.Thumbprint} | Remove-Item 
 
 # Корневой сертфикат электронной подписи клиента.
 
@@ -38,3 +40,5 @@ $certServer | Export-Certificate -Type cer -FilePath "$path\emerald.examples.int
 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -match $certServer.Thumbprint} | Remove-Item 
+Get-ChildItem Cert:\CurrentUser\CA | Where-Object {$_.Thumbprint -match $certServerRoot.Thumbprint} | Remove-Item 
+Get-ChildItem Cert:\CurrentUser\CA | Where-Object {$_.Thumbprint -match $certServer.Thumbprint} | Remove-Item 
