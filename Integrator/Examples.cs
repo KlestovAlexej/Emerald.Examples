@@ -27,7 +27,7 @@ public class Examples
     /// <summary>
     /// Базовый URL API облачного транспорта.
     /// </summary>
-    private static readonly string BaseAddress = "https://46.28.88.54:20827";
+    private static readonly string BaseAddress = $"https://localhost:{Common.Constants.DefaultPortHttpsApiIntegrator}";
 
     /// <summary>
     /// Приватный сертификат клиента для HTTPS.
