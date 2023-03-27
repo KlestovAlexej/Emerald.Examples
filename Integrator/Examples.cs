@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -12,7 +13,6 @@ using ShtrihM.Wattle3.Json.Extensions;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
 using RestSharp;
-using RestSharp.Serializers.NewtonsoftJson;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Documents.DocumentEvents;
 using ShtrihM.Emerald.Integrator.Api.Common.Dtos.Tokens;
 
@@ -22,6 +22,7 @@ namespace ShtrihM.Emerald.Examples.Integrator;
 /// Примеры использования API интеграции внешних организаций.
 /// </summary>
 [TestFixture]
+[SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable")]
 public class Examples
 {
     /// <summary>
@@ -32,38 +33,34 @@ public class Examples
     /// <summary>
     /// Приватный сертификат клиента для HTTPS.
     /// </summary>
-    private X509Certificate2 m_certificateHttps;
+    private readonly X509Certificate2 m_certificateHttps;
 
     /// <summary>
     /// Приватный сертификат клиента для создания электронной подписи.
     /// </summary>
-    private X509Certificate2 m_certificateSignature;
+    private readonly X509Certificate2 m_certificateSignature;
 
     /// <summary>
     /// Публичный корневой сертификат сервера для HTTPS.
     /// </summary>
-    private X509Certificate2 m_rootServerCertificateHttps;
+    private readonly X509Certificate2 m_rootServerCertificateHttps;
 
-    [SetUp]
-    public void SetUp()
+    /// <summary>
+    /// Настроенный клиент HTTPS.
+    /// </summary>
+    private readonly RestClient m_restClient;
+
+    public Examples()
     {
         var certificateHttpsBytes = File.ReadAllBytes(@"emerald.examples.integrator.https.organization.pfx");
         m_certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
-    
+
         var certificateSignatureBytes = File.ReadAllBytes(@"emerald.examples.integrator.signature.organization.pfx");
         m_certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
 
         var rootServerCertificateHttpsBytes = File.ReadAllBytes(@"root.emerald.integrator.server.cer");
         m_rootServerCertificateHttps = new X509Certificate2(rootServerCertificateHttpsBytes);
-    }
 
-    /// <summary>
-    /// <see cref="HttpClient"/> создаётся вручную.
-    /// Получить описание сервера.
-    /// </summary>
-    [Test]
-    public async Task Example_HttpClient_Manual()
-    {
         var handler =
             new HttpClientHandler
             {
@@ -84,37 +81,20 @@ public class Examples
 
         handler.ClientCertificates.Add(m_certificateHttps);
 
-        var httpClient =
-            new HttpClient(handler)
-            {
-                BaseAddress = new Uri(BaseAddress),
-            };
-
-        var restClient =
+        m_restClient =
             new RestClient(
-                httpClient,
-                disposeHttpClient: true,
-                configureSerialization: s => s.UseNewtonsoftJson(JsonExtensions.CreateSettings()));
-
-        using var client = new Client(restClient, true);
-        var description = await client.GetDescriptionAsync();
-
-        Assert.IsNotNull(description);
-        Console.WriteLine(description.ToJsonText(true));
-    }
-
-    /// <summary>
-    /// <see cref="HttpClient"/> создаётся автоматически.
-    /// Получить описание сервера.
-    /// </summary>
-    [Test]
-    public async Task Example_HttpClient_Auto()
-    {
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
-        var description = await client.GetDescriptionAsync();
-
-        Assert.IsNotNull(description);
-        Console.WriteLine(description.ToJsonText(true));
+                useClientFactory: true,
+                configureRestClient:
+                options =>
+                {
+                    options.BaseUrl = new Uri(BaseAddress);
+                    options.ConfigureMessageHandler = _ => handler;
+                },
+                configureSerialization:
+                config =>
+                {
+                    Client.UpdateSerializerConfig(config);
+                });
     }
 
     /// <summary>
@@ -123,7 +103,7 @@ public class Examples
     [Test]
     public async Task Example_GetDescriptionAsync()
     {
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
+        using var client = new Client(m_restClient);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -147,7 +127,7 @@ public class Examples
                 Type = 1,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
+        using var client = new Client(m_restClient);
         var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -181,7 +161,7 @@ public class Examples
                 Count = 12,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
+        using var client = new Client(m_restClient);
         var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -231,7 +211,7 @@ public class Examples
                 Message = message,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
+        using var client = new Client(m_restClient);
         var documentResult = await client.AddDocumentAsync(documentMessage);
 
         Assert.IsNotNull(documentResult);
@@ -265,7 +245,7 @@ public class Examples
                 Type = 1,
             };
 
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
+        using var client = new Client(m_restClient);
         var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -287,7 +267,7 @@ public class Examples
     [Test]
     public async Task Example_TokenBankCardExistsAsync()
     {
-        using var client = new Client(BaseAddress, m_certificateHttps, m_rootServerCertificateHttps);
+        using var client = new Client(m_restClient);
         var existsResult =
             await client.TokenBankCardExistsAsync(
                 new BankCardPanInfo
