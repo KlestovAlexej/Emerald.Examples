@@ -79,7 +79,7 @@ public class Examples
     }
 
     /// <summary>
-    /// Создание <see cref="RestClient"/> рукам.
+    /// Создание <see cref="RestClient"/> руками.
     /// </summary>
     [Test]
     public async Task Example_Manual_RestClient()
