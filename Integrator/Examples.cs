@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -22,7 +21,6 @@ namespace ShtrihM.Emerald.Examples.Integrator;
 /// Примеры использования API интеграции внешних организаций.
 /// </summary>
 [TestFixture]
-[SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable")]
 public class Examples
 {
     /// <summary>
