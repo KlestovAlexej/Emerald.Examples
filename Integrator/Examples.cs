@@ -33,12 +33,12 @@ public class Examples
     /// <summary>
     /// Приватный сертификат клиента для HTTPS.
     /// </summary>
-    private readonly X509Certificate2 m_certificateHttps;
+    private readonly X509Certificate2 m_clientCertificateHttps;
 
     /// <summary>
     /// Приватный сертификат клиента для создания электронной подписи.
     /// </summary>
-    private readonly X509Certificate2 m_certificateSignature;
+    private readonly X509Certificate2 m_clientCertificateSignature;
 
     /// <summary>
     /// Публичный корневой сертификат сервера для HTTPS.
@@ -53,34 +53,15 @@ public class Examples
     public Examples()
     {
         var certificateHttpsBytes = File.ReadAllBytes(@"emerald.examples.integrator.https.organization.pfx");
-        m_certificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
+        m_clientCertificateHttps = new X509Certificate2(certificateHttpsBytes, "password");
 
         var certificateSignatureBytes = File.ReadAllBytes(@"emerald.examples.integrator.signature.organization.pfx");
-        m_certificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
+        m_clientCertificateSignature = new X509Certificate2(certificateSignatureBytes, "password");
 
         var rootServerCertificateHttpsBytes = File.ReadAllBytes(@"root.emerald.integrator.server.cer");
         m_rootServerCertificateHttps = new X509Certificate2(rootServerCertificateHttpsBytes);
 
-        var handler =
-            new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback =
-                    (_, _, chain, _) =>
-                    {
-                        foreach (var element in chain.ChainElements)
-                        {
-                            if (element.Certificate.Thumbprint == m_rootServerCertificateHttps.Thumbprint)
-                            {
-                                return true;
-                            }
-                        }
-
-                        return false;
-                    },
-            };
-
-        handler.ClientCertificates.Add(m_certificateHttps);
-
+        var handler = Client.NewHttpClientHandler(m_clientCertificateHttps, m_rootServerCertificateHttps, true);
         m_restClient =
             new RestClient(
                 useClientFactory: true,
@@ -95,6 +76,84 @@ public class Examples
                 {
                     Client.UpdateSerializerConfig(config);
                 });
+    }
+
+    /// <summary>
+    /// Создание <see cref="RestClient"/> рукам.
+    /// </summary>
+    [Test]
+    public async Task Example_Manual_RestClient()
+    {
+        var customTrustStore =
+            new X509Certificate2Collection
+            {
+                m_rootServerCertificateHttps
+            };
+        var customChainPolicy =
+            new X509ChainPolicy
+            {
+
+                RevocationMode = X509RevocationMode.NoCheck,
+                VerificationFlags = X509VerificationFlags.IgnoreWrongUsage,
+                TrustMode = X509ChainTrustMode.CustomRootTrust,
+            };
+        customChainPolicy.CustomTrustStore.AddRange(customTrustStore);
+
+        var handler =
+            new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback =
+                    (_, certificate, chain, _) =>
+                    {
+                        var customChain =
+                            new X509Chain
+                            {
+                                ChainPolicy = customChainPolicy
+                            };
+                        customChain.Build(certificate);
+
+                        foreach (var element in customChain.ChainElements)
+                        {
+                            if (element.Certificate.Thumbprint == m_rootServerCertificateHttps!.Thumbprint)
+                            {
+                                return true;
+                            }
+                        }
+
+                        foreach (var element in chain.ChainElements)
+                        {
+                            if (element.Certificate.Thumbprint == m_rootServerCertificateHttps.Thumbprint)
+                            {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    },
+            };
+
+        handler.ClientCertificates.Add(m_clientCertificateHttps);
+
+        var restClient =
+            new RestClient(
+                useClientFactory: true,
+                configureRestClient:
+                options =>
+                {
+                    options.BaseUrl = new Uri(BaseAddress);
+                    options.ConfigureMessageHandler = _ => handler;
+                },
+                configureSerialization:
+                config =>
+                {
+                    Client.UpdateSerializerConfig(config);
+                });
+
+        using var client = new Client(restClient, true);
+        var description = await client.GetDescriptionAsync();
+
+        Assert.IsNotNull(description);
+        Console.WriteLine(description.ToJsonText(true));
     }
 
     /// <summary>
@@ -128,7 +187,7 @@ public class Examples
             };
 
         using var client = new Client(m_restClient);
-        var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
+        var documentResult = await client.AddDocumentAsync(document, m_clientCertificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
@@ -162,7 +221,7 @@ public class Examples
             };
 
         using var client = new Client(m_restClient);
-        var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
+        var documentResult = await client.AddDocumentAsync(document, m_clientCertificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
@@ -199,7 +258,7 @@ public class Examples
         var contentInfo = new ContentInfo(documentBytes);
         var signedCms = new SignedCms(contentInfo, false);
         var signer =
-            new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, m_certificateSignature)
+            new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, m_clientCertificateSignature)
             {
                 IncludeOption = X509IncludeOption.WholeChain 
             };
@@ -246,7 +305,7 @@ public class Examples
             };
 
         using var client = new Client(m_restClient);
-        var documentResult = await client.AddDocumentAsync(document, m_certificateSignature);
+        var documentResult = await client.AddDocumentAsync(document, m_clientCertificateSignature);
 
         Assert.IsNotNull(documentResult);
         Console.WriteLine(documentResult.ToJsonText(true));
