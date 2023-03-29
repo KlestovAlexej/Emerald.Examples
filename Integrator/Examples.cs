@@ -59,7 +59,7 @@ public class Examples
         var rootServerCertificateHttpsBytes = File.ReadAllBytes(@"root.emerald.integrator.server.cer");
         m_rootServerCertificateHttps = new X509Certificate2(rootServerCertificateHttpsBytes);
 
-        var handler = Client.NewHttpClientHandler(m_clientCertificateHttps, m_rootServerCertificateHttps, true);
+        var handler = IntegratorClient.NewHttpClientHandler(m_clientCertificateHttps, m_rootServerCertificateHttps, true);
         m_restClient =
             new RestClient(
                 useClientFactory: true,
@@ -72,7 +72,7 @@ public class Examples
                 configureSerialization:
                 config =>
                 {
-                    Client.UpdateSerializerConfig(config);
+                    IntegratorClient.UpdateSerializerConfig(config);
                 });
     }
 
@@ -144,10 +144,10 @@ public class Examples
                 configureSerialization:
                 config =>
                 {
-                    Client.UpdateSerializerConfig(config);
+                    IntegratorClient.UpdateSerializerConfig(config);
                 });
 
-        using var client = new Client(restClient, true);
+        using var client = new IntegratorClient(restClient, true);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -160,7 +160,7 @@ public class Examples
     [Test]
     public async Task Example_GetDescriptionAsync()
     {
-        using var client = new Client(m_restClient);
+        using var client = new IntegratorClient(m_restClient);
         var description = await client.GetDescriptionAsync();
 
         Assert.IsNotNull(description);
@@ -184,7 +184,7 @@ public class Examples
                 Type = 1,
             };
 
-        using var client = new Client(m_restClient);
+        using var client = new IntegratorClient(m_restClient);
         var documentResult = await client.AddDocumentAsync(document, m_clientCertificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -218,7 +218,7 @@ public class Examples
                 Count = 12,
             };
 
-        using var client = new Client(m_restClient);
+        using var client = new IntegratorClient(m_restClient);
         var documentResult = await client.AddDocumentAsync(document, m_clientCertificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -268,7 +268,7 @@ public class Examples
                 Message = message,
             };
 
-        using var client = new Client(m_restClient);
+        using var client = new IntegratorClient(m_restClient);
         var documentResult = await client.AddDocumentAsync(documentMessage);
 
         Assert.IsNotNull(documentResult);
@@ -302,7 +302,7 @@ public class Examples
                 Type = 1,
             };
 
-        using var client = new Client(m_restClient);
+        using var client = new IntegratorClient(m_restClient);
         var documentResult = await client.AddDocumentAsync(document, m_clientCertificateSignature);
 
         Assert.IsNotNull(documentResult);
@@ -324,7 +324,7 @@ public class Examples
     [Test]
     public async Task Example_TokenBankCardExistsAsync()
     {
-        using var client = new Client(m_restClient);
+        using var client = new IntegratorClient(m_restClient);
         var existsResult =
             await client.TokenBankCardExistsAsync(
                 new BankCardPanInfo
