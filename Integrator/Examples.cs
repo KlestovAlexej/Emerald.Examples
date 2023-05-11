@@ -108,7 +108,10 @@ public class Examples
                             {
                                 ChainPolicy = customChainPolicy
                             };
-                        customChain.Build(certificate);
+                        if (false == customChain.Build(certificate))
+                        {
+                            return false;
+                        }
 
                         foreach (var element in customChain.ChainElements)
                         {
