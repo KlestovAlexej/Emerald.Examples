@@ -80,7 +80,7 @@ public class Examples
     /// Создание <see cref="RestClient"/> руками.
     /// </summary>
     [Test]
-    public async Task Example_Manual_RestClient()
+    public async Task Manual_RestClient()
     {
         var customTrustStore =
             new X509Certificate2Collection
@@ -161,7 +161,7 @@ public class Examples
     /// Получить описание сервера.
     /// </summary>
     [Test]
-    public async Task Example_GetDescriptionAsync()
+    public async Task GetDescriptionAsync()
     {
         using var client = new IntegratorClient(m_restClient);
         var description = await client.GetDescriptionAsync();
@@ -174,7 +174,7 @@ public class Examples
     /// Отправить документ организаци - создание услуги токена (банковская карта) - билет с ограниченным сроком действия.
     /// </summary>
     [Test]
-    public async Task Example_AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimited()
+    public async Task AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimited()
     {
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimited
@@ -207,7 +207,7 @@ public class Examples
     /// Отправить документ организаци - создание услуги токена (банковская карта) - билет с ограниченным сроком действия и ограниченным числом поездок.
     /// </summary>
     [Test]
-    public async Task Example_AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited()
+    public async Task AddDocumentAsync_DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited()
     {
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimitedTravelsLimited
@@ -242,7 +242,7 @@ public class Examples
     /// Электронная подпись создаётся вручную.
     /// </summary>
     [Test]
-    public async Task Example_AddDocumentAsync_Mnual_Signature()
+    public async Task AddDocumentAsync_Mnual_Signature()
     {
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimited
@@ -292,7 +292,7 @@ public class Examples
     /// Электронная подпись создаётся автоматически.
     /// </summary>
     [Test]
-    public async Task Example_AddDocumentAsync_Auto_Signature()
+    public async Task AddDocumentAsync_Auto_Signature()
     {
         var document =
             new DocumentTokenBankCardCreateTicketTimeLimited
@@ -325,7 +325,7 @@ public class Examples
     /// Проверить существование PAN банковской карты.
     /// </summary>
     [Test]
-    public async Task Example_TokenBankCardExistsAsync()
+    public async Task TokenBankCardExistsAsync()
     {
         using var client = new IntegratorClient(m_restClient);
         var existsResult =
