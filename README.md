@@ -2,7 +2,7 @@
 
 Примеры использования API облачного транспорта.
 
-Клиент API написан 100% на [C#](https://ru.wikipedia.org/wiki/C_Sharp) под [.NET 7](https://devblogs.microsoft.com/dotnet/announcing-dotnet-7/).
+Клиент API написан 100% на [C#](https://ru.wikipedia.org/wiki/C_Sharp) под [.NET 8](https://devblogs.microsoft.com/dotnet/announcing-dotnet-8/).
 
 # Содержание
 - [**Примеры использования API интеграции внешних организаций**](#примеры-использования-api-интеграции-внешних-организаций)
