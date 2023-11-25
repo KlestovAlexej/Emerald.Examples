@@ -14,6 +14,6 @@
 
 Примеры в файле [Examples.cs](/Integrator/Examples.cs).
 
-Все примеры оформлены как [NUnit](https://nunit.org/)-тесты для запуска в ОС Windows из-под [Visual Studio 2022](https://visualstudio.microsoft.com/ru/vs/) (проверено на версии 17.8).
+Все примеры оформлены как [NUnit](https://nunit.org/)-тесты для запуска в ОС Windows из-под [Visual Studio 2022](https://visualstudio.microsoft.com/ru/vs/) (проверено на версии 17.8.1).
 
 Скрипт [PowerShell](https://learn.microsoft.com/ru-ru/powershell/) создания сертификатов клиента для HTTPS и электронной подписи в файле [CreateCertificates.ps1](/Integrator/CreateCertificates.ps1).
