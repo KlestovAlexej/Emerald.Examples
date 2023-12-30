@@ -4,7 +4,6 @@
 
 Клиент API написан 100% на [C#](https://ru.wikipedia.org/wiki/C_Sharp) под [.NET 8](https://devblogs.microsoft.com/dotnet/announcing-dotnet-8/).
 
----
 ## Примеры использования API интеграции внешних организаций
 
 Пакеты **nuget** клиента начинаются с префикса [ShtrihM.Emerald.Integrator.Api.Clients](https://www.nuget.org/packages?q=ShtrihM.Emerald.Integrator.Api.Clients)
